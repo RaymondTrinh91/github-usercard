@@ -3,6 +3,17 @@
            https://api.github.com/users/<your name>
 */
 
+axios
+.get("https://api.github.com/users/RaymondTrinh91")
+  .then(response => {
+    console.log(response)
+    const profile = response.data;
+    let myProfile = createFollower(profile);
+    cardContain.appendChild(myProfile)
+  })
+  .catch(error =>{
+    console.log("Error:", error);
+  })
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
@@ -24,8 +35,65 @@
           user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+const followersArray = ["tetondan", "dustinmyers", "justsml", "luishrd", "bigknell"];
+followersArray.forEach(follower =>{
+  axios.get(`https://api.github.com/users/${follower}`)
+    .then(response =>{
+      const profile = response.data;
+      const followerProfile = createFollower(profile);
+      cardContain.appendChild(followerProfile);
+    })
+})
+const cardContain = document.querySelector(".cards");
 
+function createFollower(object){
+  //Elements
+  const
+  card = document.createElement("div"),
+  proPic = document.createElement("img"),
+  cardInfo = document.createElement("div"),
+  name = document.createElement("h3"),
+  userName = document.createElement("p"),
+  location = document.createElement("p"),
+  profile = document.createElement("p"),
+  gitLink = document.createElement("a"),
+  followerCount = document.createElement("p"),
+  following = document.createElement("p"),
+  bio = document.createElement("p");
+
+  //Structure
+  card.appendChild(proPic);
+  card.appendChild(cardInfo);
+  cardInfo.appendChild(name);
+  cardInfo.appendChild(userName);
+  cardInfo.appendChild(location);
+  cardInfo.appendChild(profile);
+  profile.appendChild(gitLink);
+  cardInfo.appendChild(followerCount);
+  cardInfo.appendChild(following);
+  cardInfo.appendChild(bio);
+
+  //Class Assignments
+
+  card.classList.add("card");
+  cardInfo.classList.add("card-info");
+  name.classList.add("name");
+  userName.classList.add("username");
+
+  //Content
+  proPic.src = object.avatar_url;
+  name.textContent = object.name;
+  userName.textContent = object.login;
+  location.textContent = object.location;
+  profile.textContent = "Profile:";
+  gitLink.href = object.html_url;
+  gitLink.textContent = object.html_url;
+  followerCount.textContent = `Followers: ${object.followers}`;
+  following.textContent = `Following: ${object.following}`;
+  bio.textContent = `Bio: ${object.bio}`;
+
+  return card;
+}
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
 
