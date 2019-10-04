@@ -83,7 +83,11 @@ function createFollower(object){
   followerCount = document.createElement("p"),
   following = document.createElement("p"),
   bio = document.createElement("p");
-  gitProfile.textContent = `Profile:`;
+  
+  //Cuz it don't work otherwise
+  //Profile text
+  gitProfile.textContent = `Profile: `;
+
   //Structure
   card.appendChild(proPic);
   card.appendChild(cardInfo);
@@ -107,7 +111,6 @@ function createFollower(object){
   name.textContent = object.name;
   userName.textContent = object.login;
   location.textContent = object.location;
-  // gitProfile.textContent = `Profile:`;
   gitLink.href = object.html_url;
   gitLink.textContent = object.html_url;
   followerCount.textContent = `Followers: ${object.followers}`;
