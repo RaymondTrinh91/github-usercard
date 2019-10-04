@@ -3,17 +3,6 @@
            https://api.github.com/users/<your name>
 */
 
-axios
-.get("https://api.github.com/users/RaymondTrinh91")
-  .then(response => {
-    console.log(response)
-    const profile = response.data;
-    let myProfile = createFollower(profile);
-    cardContain.appendChild(myProfile)
-  })
-  .catch(error =>{
-    console.log("Error:", error);
-  })
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
@@ -34,18 +23,52 @@ axios
           Using that array, iterate over it, requesting data for each user, creating a new card for each
           user, and adding that card to the DOM.
 */
+//My Profile
+axios
+.get("https://api.github.com/users/RaymondTrinh91")
+  .then(response => {
+    console.log(response)
+    const profile1 = response.data;
+    let myProfile = createFollower(profile1);
+    cardContain.appendChild(myProfile);
+    return response.data.followers_url;
+  })
+  .catch(error =>{
+    console.log("Error:", error);
+  });
 
+//Dynamic Followers
+axios.get("https://api.github.com/users/RaymondTrinh91/followers")
+  .then(response =>{
+    console.log(response);
+    response.data.forEach(object =>{
+      axios.get(`https://api.github.com/users/${object.login}`)
+        .then(responseFollowers =>{
+          const followerProfile = createFollower(responseFollowers.data);
+          cardContain.appendChild(followerProfile);
+        })
+      })
+  })  
+.catch(error =>{
+  console.log("Error:", error);
+});
+
+//Static Followers
 const followersArray = ["tetondan", "dustinmyers", "justsml", "luishrd", "bigknell"];
 followersArray.forEach(follower =>{
   axios.get(`https://api.github.com/users/${follower}`)
     .then(response =>{
-      const profile = response.data;
-      const followerProfile = createFollower(profile);
+      const profile1 = response.data;
+      const followerProfile = createFollower(profile1);
       cardContain.appendChild(followerProfile);
-    })
-})
+    });
+});
+
+//Container Selector
 const cardContain = document.querySelector(".cards");
 
+
+//Profile Card Creator
 function createFollower(object){
   //Elements
   const
@@ -55,26 +78,25 @@ function createFollower(object){
   name = document.createElement("h3"),
   userName = document.createElement("p"),
   location = document.createElement("p"),
-  profile = document.createElement("p"),
+  gitProfile = document.createElement("p"),
   gitLink = document.createElement("a"),
   followerCount = document.createElement("p"),
   following = document.createElement("p"),
   bio = document.createElement("p");
-
+  gitProfile.textContent = `Profile:`;
   //Structure
   card.appendChild(proPic);
   card.appendChild(cardInfo);
   cardInfo.appendChild(name);
   cardInfo.appendChild(userName);
   cardInfo.appendChild(location);
-  cardInfo.appendChild(profile);
-  profile.appendChild(gitLink);
+  cardInfo.appendChild(gitProfile);
   cardInfo.appendChild(followerCount);
   cardInfo.appendChild(following);
   cardInfo.appendChild(bio);
+  gitProfile.appendChild(gitLink);
 
   //Class Assignments
-
   card.classList.add("card");
   cardInfo.classList.add("card-info");
   name.classList.add("name");
@@ -85,7 +107,7 @@ function createFollower(object){
   name.textContent = object.name;
   userName.textContent = object.login;
   location.textContent = object.location;
-  profile.textContent = "Profile:";
+  // gitProfile.textContent = `Profile:`;
   gitLink.href = object.html_url;
   gitLink.textContent = object.html_url;
   followerCount.textContent = `Followers: ${object.followers}`;
