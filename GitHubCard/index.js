@@ -23,9 +23,102 @@
           Using that array, iterate over it, requesting data for each user, creating a new card for each
           user, and adding that card to the DOM.
 */
+//My Profile
+axios
+.get("https://api.github.com/users/RaymondTrinh91")
+  .then(response => {
+    console.log(response)
+    const profile1 = response.data;
+    let myProfile = createFollower(profile1);
+    cardContain.appendChild(myProfile);
+    return response.data.followers_url;
+  })
+  .catch(error =>{
+    console.log("Error:", error);
+  });
 
-const followersArray = [];
+//Dynamic Followers
+axios.get("https://api.github.com/users/RaymondTrinh91/followers")
+  .then(response =>{
+    console.log(response);
+    response.data.forEach(object =>{
+      axios.get(`https://api.github.com/users/${object.login}`)
+        .then(responseFollowers =>{
+          const followerProfile = createFollower(responseFollowers.data);
+          cardContain.appendChild(followerProfile);
+        })
+      })
+  })  
+.catch(error =>{
+  console.log("Error:", error);
+});
 
+//Static Followers
+const followersArray = ["tetondan", "dustinmyers", "justsml", "luishrd", "bigknell"];
+followersArray.forEach(follower =>{
+  axios.get(`https://api.github.com/users/${follower}`)
+    .then(response =>{
+      const profile1 = response.data;
+      const followerProfile = createFollower(profile1);
+      cardContain.appendChild(followerProfile);
+    });
+});
+
+//Container Selector
+const cardContain = document.querySelector(".cards");
+
+
+//Profile Card Creator
+function createFollower(object){
+  //Elements
+  const
+  card = document.createElement("div"),
+  proPic = document.createElement("img"),
+  cardInfo = document.createElement("div"),
+  name = document.createElement("h3"),
+  userName = document.createElement("p"),
+  location = document.createElement("p"),
+  gitProfile = document.createElement("p"),
+  gitLink = document.createElement("a"),
+  followerCount = document.createElement("p"),
+  following = document.createElement("p"),
+  bio = document.createElement("p");
+  
+  //Cuz it don't work otherwise
+  //Profile text
+  gitProfile.textContent = `Profile: `;
+
+  //Structure
+  card.appendChild(proPic);
+  card.appendChild(cardInfo);
+  cardInfo.appendChild(name);
+  cardInfo.appendChild(userName);
+  cardInfo.appendChild(location);
+  cardInfo.appendChild(gitProfile);
+  cardInfo.appendChild(followerCount);
+  cardInfo.appendChild(following);
+  cardInfo.appendChild(bio);
+  gitProfile.appendChild(gitLink);
+
+  //Class Assignments
+  card.classList.add("card");
+  cardInfo.classList.add("card-info");
+  name.classList.add("name");
+  userName.classList.add("username");
+
+  //Content
+  proPic.src = object.avatar_url;
+  name.textContent = object.name;
+  userName.textContent = object.login;
+  location.textContent = object.location;
+  gitLink.href = object.html_url;
+  gitLink.textContent = object.html_url;
+  followerCount.textContent = `Followers: ${object.followers}`;
+  following.textContent = `Following: ${object.following}`;
+  bio.textContent = `Bio: ${object.bio}`;
+
+  return card;
+}
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
 
